@@ -6,7 +6,7 @@ ESP32-WROOM and Arduino ESP32 nano will be officially supported. Other ESP32 bas
 
 
 
-### components used:
+### Components used:
 *this list does not include the protogen head, just the ESP32 controlling it*
 - [XIAO EPS32C2](https://www.seeedstudio.com/Seeed-XIAO-ESP32C3-p-5431.html), 2pc 
 - [ESP32-WROOM](https://www.amazon.com/s?k=esp32+Wroom+32&i=electronics&crid=2EIN54VSP3B0&sprefix=esp32+wroom+%2Celectronics%2C166&ref=nb_sb_noss_2) or [Arduino ESP32 nano](https://store.arduino.cc/products/nano-esp32), 1pc 
