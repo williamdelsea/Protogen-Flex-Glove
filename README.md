@@ -9,5 +9,6 @@ components used and where to get them: (this does not include the entire protoge
 - [ESP32-WROOM](https://www.amazon.com/s?k=esp32+Wroom+32&i=electronics&crid=2EIN54VSP3B0&sprefix=esp32+wroom+%2Celectronics%2C166&ref=nb_sb_noss_2) or [Arduino ESP32 nano](https://store.arduino.cc/products/nano-esp32), 1pc 
 - [2.2 inch flex sensor](https://www.adafruit.com/product/1070), 6pc 
 - [Lilon/Lipoly QTpy charger BFF](https://www.adafruit.com/product/5397), 2pc
-- [Lithuim ion polymer battery](https://www.adafruit.com/product/4236), 2pc 
+- [Lithuim ion polymer battery](https://www.adafruit.com/product/4236), 2pc
+- [Mini PCB prototype board](https://www.amazon.com/ElectroCookie-Solderable-Breadboard-Electronics-Gold-Plated/dp/B081MSKJJX), 2pc
 
