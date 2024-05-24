@@ -28,6 +28,11 @@ static BLEAdvertisedDevice* pFoundDevice;
 static BLERemoteCharacteristic* pRemoteCharLeft;
 static BLERemoteCharacteristic* pRemoteCharRight;
 
+bool right = false;
+bool thumb, pointer, middle;
+uint8_t flexData;
+
+
 // Callbacks for events that occur to the BLE Client
 class MyClientCallback : public BLEClientCallbacks {
   void onConnect(BLEClient* pclient) {
@@ -113,6 +118,24 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
 
 
 void setup() {
+  // setting up pins to use for flex sensor
+  pinMode(A0, INPUT);
+  pinMode(A1, INPUT);
+  pinMode(A2, INPUT);
+
+  pinMode(D3, OUTPUT);
+  pinMode(D4, OUTPUT);
+  pinMode(D5, OUTPUT);
+
+  // pins for determining if the current client is right
+  pinMode(D8, OUTPUT);
+  pinMode(D9, INPUT);
+
+  digitalWrite(D3, HIGH);
+  digitalWrite(D4, HIGH);
+  digitalWrite(D5, HIGH);
+  digitalWrite(D8, HIGH);
+
   Serial.begin(115200);
   Serial.println("Proto Glove Client starting...");
   BLEDevice::init("Proto Glove Client");
@@ -126,11 +149,18 @@ void setup() {
   pBLEScan->setWindow(449);
   pBLEScan->setActiveScan(true);
   pBLEScan->start(5, false);
+
+  if (digitalRead(D9) == HIGH) right = true;
+  digitalWrite(D8, LOW);
 } // End of setup.
 
 
 // This is the Arduino main loop function.
 void loop() {
+  (analogRead(A0) >= 2047) ? thumb = true : thumb = false;
+  (analogRead(A1) >= 2047) ? pointer = true : pointer = false;
+  (analogRead(A2) >= 2047) ? middle = true : middle = false;
+
 
   // If the flag "doConnect" is true then we have scanned for and found the desired
   // BLE Server with which we wish to connect.  Now we connect to it.  Once we are 
@@ -147,11 +177,14 @@ void loop() {
   // If we are connected to a peer BLE Server, update the characteristic each time we are reached
   // with the current time since boot.
   if (connected) {
-    
-    // TODO: read anolog values and update the characteristics
-    pRemoteCharLeft->writeValue(0, 1, false);
-    pRemoteCharRight->writeValue(0, 1, false);
 
+    flexData = (int) thumb << 0 | (int) pointer << 1 | (int) middle << 2;
+    
+    if (right) {
+      pRemoteCharRight->writeValue(flexData, false);
+    } else {
+      pRemoteCharLeft->writeValue(flexData, false);
+    }
 
   } else if (doScan) {
     BLEDevice::getScan()->start(0);  // this is just example to start scan after disconnect, most likely there is better way to do it in arduino
