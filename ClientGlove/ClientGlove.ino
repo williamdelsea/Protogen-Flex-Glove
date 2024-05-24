@@ -8,6 +8,8 @@
 #define CHARACTERISTIC_LEFT_UUID  "ac61fa72-e2de-42fb-9605-d0c7549b1c39"
 #define CHARACTERISTIC_RIGHT_UUID "b3f4eb92-9ceb-4317-90ed-373a36164d2b"
 
+// https://www.uuidgenerator.net/
+
 
 // Reformat the strings as a BLEUUID
 static BLEUUID serviceUUID(SERVICE_UUID);
@@ -80,7 +82,7 @@ bool connectToServer() {
       pClient->disconnect();
       return false;
     }
-    pRemoteCharLeft = pRemoteService->getCharacteristic(charRightUUID);
+    pRemoteCharRight = pRemoteService->getCharacteristic(charRightUUID);
     if (pRemoteCharRight == nullptr) {
       Serial.print("Failed to find our characteristic UUID: ");
       Serial.println(charLeftUUID.toString().c_str());
@@ -151,15 +153,21 @@ void setup() {
   pBLEScan->start(5, false);
 
   if (digitalRead(D9) == HIGH) right = true;
-  digitalWrite(D8, LOW);
+  Serial.print("Client is right? ");
+  Serial.println(right);
+  //digitalWrite(D8, LOW);
 } // End of setup.
 
 
 // This is the Arduino main loop function.
 void loop() {
+
+  // reading analog pins 
   (analogRead(A0) >= 2047) ? thumb = true : thumb = false;
   (analogRead(A1) >= 2047) ? pointer = true : pointer = false;
   (analogRead(A2) >= 2047) ? middle = true : middle = false;
+
+
 
 
   // If the flag "doConnect" is true then we have scanned for and found the desired
@@ -178,6 +186,7 @@ void loop() {
   // with the current time since boot.
   if (connected) {
 
+    // dont know if this actually works
     flexData = (int) thumb << 0 | (int) pointer << 1 | (int) middle << 2;
     
     if (right) {

@@ -11,6 +11,8 @@
 #define CHARACTERISTIC_LEFT_UUID  "ac61fa72-e2de-42fb-9605-d0c7549b1c39"
 #define CHARACTERISTIC_RIGHT_UUID "b3f4eb92-9ceb-4317-90ed-373a36164d2b"
 
+// https://www.uuidgenerator.net/
+
 // The bluetooth low energy server and its default service.
 // See https://learn.adafruit.com/introduction-to-bluetooth-low-energy/gatt#services-and-characteristics-640989
 BLEServer *pServer;
@@ -23,6 +25,8 @@ BLECharacteristic *pCharacteristicRight;
 // Number of devices currently connected, used for logging.
 int deviceConnected = 0;
 
+int maxDevices = 2;
+
 // Extends the server callbacks class to define code that runs on certain events in the bluetooth server.
 class ServerCallbacks: public BLEServerCallbacks {
     // Runs whenever a new device connects to the server.
@@ -30,7 +34,8 @@ class ServerCallbacks: public BLEServerCallbacks {
     {
         deviceConnected++;
         // By default the server stops advertising when a device connects, the below line makes it continue advertising and hence allow multiple connections.
-        BLEDevice::startAdvertising();
+        // if there is less than the max amount of devices connecting, the serve will continue to advertise
+        if (deviceConnected < maxDevices) BLEDevice::startAdvertising();
 
         // Debug messages
         Serial.print("Device connected. Now there are ");
