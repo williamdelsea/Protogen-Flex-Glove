@@ -152,7 +152,8 @@ void setup() {
   pBLEScan->setActiveScan(true);
   pBLEScan->start(5, false);
 
-  if (digitalRead(D9) == HIGH) right = true;
+  //if (digitalRead(D9) == HIGH) right = true;
+  right = false;
   Serial.print("Client is right? ");
   Serial.println(right);
   //digitalWrite(D8, LOW);
@@ -187,7 +188,8 @@ void loop() {
   if (connected) {
 
     // dont know if this actually works
-    flexData = (int) thumb << 0 | (int) pointer << 1 | (int) middle << 2;
+    flexData = 48 + ((int) thumb << 0 | (int) pointer << 1 | (int) middle << 2);
+    //Serial.println(flexData);
     
     if (right) {
       pRemoteCharRight->writeValue(flexData, false);
