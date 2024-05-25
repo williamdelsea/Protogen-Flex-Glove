@@ -114,8 +114,6 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
       doConnect = true;
       doScan = true;
 
-    } else {
-      Serial.println("aaaa");
     } // Found our server
   } // onResult
 }; // MyAdvertisedDeviceCallbacks
@@ -131,9 +129,9 @@ void setup() {
   pinMode(D4, OUTPUT);
   pinMode(D5, OUTPUT);
 
-  // pins for determining if the current client is right
-  pinMode(D8, OUTPUT);
-  pinMode(D9, INPUT);
+  // pins for determining if the current client is right or left
+  // connect 10kΩ to ground for left, power for right
+  pinMode(D8, INPUT);
 
   digitalWrite(D3, HIGH);
   digitalWrite(D4, HIGH);
@@ -154,11 +152,9 @@ void setup() {
   pBLEScan->setActiveScan(true);
   pBLEScan->start(5, false);
 
-  //if (digitalRead(D9) == HIGH) right = true;
-  right = false;
+  if (digitalRead(D8) == HIGH) right = true;
   Serial.print("Client is right? ");
-  Serial.println(right);
-  //digitalWrite(D8, LOW);
+  Serial.println(digitalRead(D8));
 } // End of setup.
 
 
