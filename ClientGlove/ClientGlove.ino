@@ -2,7 +2,7 @@
 
 
 // The remote service we wish to connect to.
-#define SERVICE_UUID "9d537c81-4b1f-406c-b12f-a9aa49af6332"
+#define SERVICE_UUID "9d537c81-4b1f-406c-b12f-a9aa49af6333"
 
 // The characteristics we want to update on the server
 #define CHARACTERISTIC_LEFT_UUID  "ac61fa72-e2de-42fb-9605-d0c7549b1c39"
@@ -114,6 +114,8 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
       doConnect = true;
       doScan = true;
 
+    } else {
+      Serial.println("aaaa");
     } // Found our server
   } // onResult
 }; // MyAdvertisedDeviceCallbacks

@@ -4,7 +4,7 @@
 
 
 // Service ID, should be the same as the client so the client knows which device to connect to.
-#define SERVICE_UUID              "9d537c81-4b1f-406c-b12f-a9aa49af6332"
+#define SERVICE_UUID              "9d537c81-4b1f-406c-b12f-a9aa49af6333"
 
 // Keys for the clients to update, left client should use the CHARACTERISTIC_LEFT_UUID 
 // to set values and the right client should use CHARACTERISTIC_RIGHT_UUID
@@ -26,6 +26,8 @@ BLECharacteristic *pCharacteristicRight;
 int deviceConnected = 0;
 
 int maxDevices = 2;
+
+String flexValue;
 
 // Extends the server callbacks class to define code that runs on certain events in the bluetooth server.
 class ServerCallbacks: public BLEServerCallbacks {
@@ -128,8 +130,91 @@ void setup() {
   pAdvertising->setMinPreferred(0x06);  // functions that help with iPhone connections issue
   pAdvertising->setMinPreferred(0x12);
   BLEDevice::startAdvertising();
+
+  pinMode(12, OUTPUT);
+  pinMode(27, OUTPUT);
+  pinMode(25, OUTPUT);
+  pinMode(33, OUTPUT);
+  pinMode(32, OUTPUT);
+  pinMode(22, OUTPUT);
+  pinMode(23, OUTPUT);
 }
 
 void loop() {
+  flexValue = pCharacteristicLeft->getValue().c_str();
+  switch (flexValue.toInt()) {
+    case 0:
+      digitalWrite(12, LOW);
+      digitalWrite(27, LOW);
+      digitalWrite(25, LOW);
+      digitalWrite(33, LOW);
+      digitalWrite(32, LOW);
+      digitalWrite(22, LOW);
+      digitalWrite(23, LOW);
+      break;
+    case 1:
+      digitalWrite(12, HIGH);
+      digitalWrite(27, LOW);
+      digitalWrite(25, LOW);
+      digitalWrite(33, LOW);
+      digitalWrite(32, LOW);
+      digitalWrite(22, LOW);
+      digitalWrite(23, LOW);
+      break;
+    case 2:
+      digitalWrite(12, LOW);
+      digitalWrite(27, HIGH);
+      digitalWrite(25, LOW);
+      digitalWrite(33, LOW);
+      digitalWrite(32, LOW);
+      digitalWrite(22, LOW);
+      digitalWrite(23, LOW);
+      break;
+    case 3:
+      digitalWrite(12, LOW);
+      digitalWrite(27, LOW);
+      digitalWrite(25, HIGH);
+      digitalWrite(33, LOW);
+      digitalWrite(32, LOW);
+      digitalWrite(22, LOW);
+      digitalWrite(23, LOW);
+      break;
+    case 4:
+      digitalWrite(12, LOW);
+      digitalWrite(27, LOW);
+      digitalWrite(25, LOW);
+      digitalWrite(33, HIGH);
+      digitalWrite(32, LOW);
+      digitalWrite(22, LOW);
+      digitalWrite(23, LOW);
+      break;
+    case 5:
+      digitalWrite(12, LOW);
+      digitalWrite(27, LOW);
+      digitalWrite(25, LOW);
+      digitalWrite(33, LOW);
+      digitalWrite(32, HIGH);
+      digitalWrite(22, LOW);
+      digitalWrite(23, LOW);
+      break;
+    case 6:
+      digitalWrite(12, LOW);
+      digitalWrite(27, LOW);
+      digitalWrite(25, LOW);
+      digitalWrite(33, LOW);
+      digitalWrite(32, LOW);
+      digitalWrite(22, HIGH);
+      digitalWrite(23, LOW);
+      break;
+    case 7:
+      digitalWrite(12, LOW);
+      digitalWrite(27, LOW);
+      digitalWrite(25, LOW);
+      digitalWrite(33, LOW);
+      digitalWrite(32, LOW);
+      digitalWrite(22, LOW);
+      digitalWrite(23, HIGH);
+      break;
+  }
   delay(2000); // Keeps the server running
 }
