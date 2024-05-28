@@ -6,7 +6,7 @@ ESP32-WROOM and Arduino ESP32 nano will be officially supported. Other ESP32 bas
 
 
 
-### Components used:
+## Components used:
 *this list does not include the protogen head, just the ESP32 controlling it*
 - [XIAO EPS32C2](https://www.seeedstudio.com/Seeed-XIAO-ESP32C3-p-5431.html), 2pc 
 - [ESP32-WROOM](https://www.amazon.com/s?k=esp32+Wroom+32&i=electronics&crid=2EIN54VSP3B0&sprefix=esp32+wroom+%2Celectronics%2C166&ref=nb_sb_noss_2) or [Arduino ESP32 nano](https://store.arduino.cc/products/nano-esp32), 1pc 
@@ -20,4 +20,14 @@ ESP32-WROOM and Arduino ESP32 nano will be officially supported. Other ESP32 bas
 For a lower profile board, the QTpy charger is not necessary, as the XIAO has [battery pad on the underside](https://wiki.seeedstudio.com/XIAO_ESP32C3_Getting_Started/#battery-usage). Instead a battery can be directly soldered to the pads with a switch between.
 
 Both flex gloves use the same script, but are able to differentiate if they are they are the left or right glove by a 10kΩ resistor on pin 8. When connected to ground, the client will be in left mode, and connected to power it will be in right mode.
+
+## Pin Connection
+### Xiao 
+- A0 -> [Battery pads](https://wiki.seeedstudio.com/XIAO_ESP32C3_Getting_Started/#check-the-battery-voltage)
+- A1 -> thumb sensor
+- A2 -> index senor
+- A3 -> middle sensor
+- D8 -> 10kΩ -> power (right) / ground (left)
+  
+  all flex sensors use a pullup resistor between their respective input pins and power
 
