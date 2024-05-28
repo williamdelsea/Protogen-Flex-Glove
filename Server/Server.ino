@@ -11,6 +11,9 @@
 #define CHARACTERISTIC_LEFT_UUID  "ac61fa72-e2de-42fb-9605-d0c7549b1c39"
 #define CHARACTERISTIC_RIGHT_UUID "b3f4eb92-9ceb-4317-90ed-373a36164d2b"
 
+#define CHARACTERISTIC_LEFT_BATTERY  "1a703249-0446-448b-98d4-980a1d10da21"
+#define CHARACTERISITC_RIGHT_BATTERY "2de2e09d-5ccd-4341-a148-eb7422401c98"
+
 // https://www.uuidgenerator.net/
 
 // The bluetooth low energy server and its default service.
@@ -21,14 +24,17 @@ BLEService *pService;
 // Characteristic definitions for the left and right state values.
 BLECharacteristic *pCharacteristicLeft;
 BLECharacteristic *pCharacteristicRight;
+BLECharacteristic *pCharacteristicLeftBatt;
+BLECharacteristic *pCharacteristicRightBatt;
 
 // Number of devices currently connected, used for logging.
 int deviceConnected = 0;
 
 int maxDevices = 2;
 
-String flexValueLeft;
-String flexValueRight;
+String flexValueLeft, flexValueRight, leftBattVoltage, rightBattVoltage;
+
+float  leftBattPercent, rightBattPercent;
 
 // Extends the server callbacks class to define code that runs on certain events in the bluetooth server.
 class ServerCallbacks: public BLEServerCallbacks {
@@ -111,15 +117,29 @@ void setup() {
     BLECharacteristic::PROPERTY_READ |
     BLECharacteristic::PROPERTY_WRITE
   );
+  pCharacteristicLeftBatt = pService->createCharacteristic(
+    CHARACTERISTIC_LEFT_BATTERY,
+    BLECharacteristic::PROPERTY_READ |
+    BLECharacteristic::PROPERTY_WRITE
+  );
+  pCharacteristicRightBatt = pService->createCharacteristic(
+    CHARACTERISITC_RIGHT_BATTERY,
+    BLECharacteristic::PROPERTY_READ |
+    BLECharacteristic::PROPERTY_WRITE
+  );
 
   // Tells both characteristics to use the same callback methods we defined above to listen for changes
   CharacteristicChangeCallbacks *callbacks = new CharacteristicChangeCallbacks();
   pCharacteristicLeft->setCallbacks(callbacks);
   pCharacteristicRight->setCallbacks(callbacks);
+  pCharacteristicLeftBatt->setCallbacks(callbacks);
+  pCharacteristicRightBatt->setCallbacks(callbacks);
 
   // Sets the default value for each characteristic
   pCharacteristicLeft->setValue("0");
   pCharacteristicRight->setValue("0");
+  pCharacteristicLeftBatt->setValue("0");
+  pCharacteristicRightBatt->setValue("0");
 
   // Starts the service, however no client can connect until the device starts advertising
   pService->start();
@@ -137,6 +157,12 @@ void setup() {
 }
 
 void loop() {
+
+  leftBattVoltage = pCharacteristicLeftBatt->getValue().c_str();
+  rightBattVoltage = pCharacteristicRightBatt->getValue().c_str();
+  leftBattPercent = map(leftBattVoltage.toFloat(), 3.6, 4.2, 0, 100);
+  rightBattPercent = map(rightBattVoltage.toFloat(), 3.6, 4.2, 0, 100);
+
   flexValueLeft = pCharacteristicLeft->getValue().c_str();
   flexValueRight = pCharacteristicRight->getValue().c_str();
   analogWrite(19, map(flexValueRight.toInt(), 0, 7, 0, 255));

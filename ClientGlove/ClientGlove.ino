@@ -8,6 +8,9 @@
 #define CHARACTERISTIC_LEFT_UUID  "ac61fa72-e2de-42fb-9605-d0c7549b1c39"
 #define CHARACTERISTIC_RIGHT_UUID "b3f4eb92-9ceb-4317-90ed-373a36164d2b"
 
+#define CHARACTERISTIC_LEFT_BATTERY  "1a703249-0446-448b-98d4-980a1d10da21"
+#define CHARACTERISTIC_RIGHT_BATTERY "2de2e09d-5ccd-4341-a148-eb7422401c98"
+
 // https://www.uuidgenerator.net/
 
 
@@ -15,6 +18,8 @@
 static BLEUUID serviceUUID(SERVICE_UUID);
 static BLEUUID charLeftUUID(CHARACTERISTIC_LEFT_UUID);
 static BLEUUID charRightUUID(CHARACTERISTIC_RIGHT_UUID);
+static BLEUUID charLeftBatt(CHARACTERISTIC_LEFT_BATTERY);
+static BLEUUID charRightBatt(CHARACTERISTIC_RIGHT_BATTERY);
 
 // If he have found an advertised device and should attempt to connect to it
 static boolean doConnect = false;
@@ -29,10 +34,15 @@ static BLEAdvertisedDevice* pFoundDevice;
 // The characteristics on the server for us to update
 static BLERemoteCharacteristic* pRemoteCharLeft;
 static BLERemoteCharacteristic* pRemoteCharRight;
+static BLERemoteCharacteristic* pRemoteCharLeftBatt;
+static BLERemoteCharacteristic* pRemoteCharRightBatt;
 
 bool right = false;
 bool thumb, pointer, middle;
 uint8_t flexData;
+
+float batteryVolt;
+uint32_t Vbatt;
 
 
 // Callbacks for events that occur to the BLE Client
@@ -89,6 +99,21 @@ bool connectToServer() {
       pClient->disconnect();
       return false;
     }
+    pRemoteCharLeftBatt = pRemoteService->getCharacteristic(charLeftBatt);
+    if (pRemoteCharLeftBatt == nullptr) {
+      Serial.print("Failed to find our characteristic UUID: ");
+      Serial.println(charLeftBatt.toString().c_str());
+      pClient->disconnect();
+      return false;
+    }
+    pRemoteCharRightBatt = pRemoteService->getCharacteristic(charRightBatt);
+    if (pRemoteCharRightBatt == nullptr) {
+      Serial.print("Failed to find our characteristic UUID: ");
+      Serial.println(charRightBatt.toString().c_str());
+      pClient->disconnect();
+      return false;
+    }
+    
     Serial.println(" - Found our characteristics");
 
     connected = true;
@@ -120,23 +145,16 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
 
 
 void setup() {
-  // setting up pins to use for flex sensor
+  // setting up pins to use for flex sensor, A0 for checking battery voltage, A1-3 for flex sensors
+  // D8 used for determining left of right client, connect 10kΩ to ground for left, power for right
   pinMode(A0, INPUT);
+
   pinMode(A1, INPUT);
   pinMode(A2, INPUT);
+  pinMode(A3, INPUT);
 
-  pinMode(D3, OUTPUT);
-  pinMode(D4, OUTPUT);
-  pinMode(D5, OUTPUT);
-
-  // pins for determining if the current client is right or left
-  // connect 10kΩ to ground for left, power for right
   pinMode(D8, INPUT);
 
-  digitalWrite(D3, HIGH);
-  digitalWrite(D4, HIGH);
-  digitalWrite(D5, HIGH);
-  digitalWrite(D8, HIGH);
 
   Serial.begin(115200);
   Serial.println("Proto Glove Client starting...");
@@ -161,13 +179,17 @@ void setup() {
 // This is the Arduino main loop function.
 void loop() {
 
-  // reading analog pins 
-  (analogRead(A0) >= 2047) ? thumb = true : thumb = false;
-  (analogRead(A1) >= 2047) ? pointer = true : pointer = false;
-  (analogRead(A2) >= 2047) ? middle = true : middle = false;
+  // reading A0 for voltage
+  Vbatt = 0;
+  for(int i = 0; i < 16; i++) {
+    Vbatt = Vbatt + analogReadMilliVolts(A0); // ADC with correction   
+  }
+  batteryVolt = 2 * Vbatt / 16 / 1000.0;
 
-
-
+  // reading flex sensors 
+  (analogRead(A1) >= 2047) ? thumb = true : thumb = false;
+  (analogRead(A2) >= 2047) ? pointer = true : pointer = false;
+  (analogRead(A3) >= 2047) ? middle = true : middle = false;
 
   // If the flag "doConnect" is true then we have scanned for and found the desired
   // BLE Server with which we wish to connect.  Now we connect to it.  Once we are 
@@ -191,8 +213,10 @@ void loop() {
     
     if (right) {
       pRemoteCharRight->writeValue(flexData, false);
+      pRemoteCharRightBatt->writeValue(batteryVolt, false);
     } else {
       pRemoteCharLeft->writeValue(flexData, false);
+      pRemoteCharLeftBatt->writeValue(batteryVolt, false);
     }
 
   } else if (doScan) {
