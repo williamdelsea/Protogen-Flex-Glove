@@ -1,3 +1,8 @@
+#include <Adafruit_SSD1306.h>
+#include <splash.h>
+
+
+
 #include <BLEDevice.h>
 #include <BLEUtils.h>
 #include <BLEServer.h>
@@ -35,6 +40,8 @@ int maxDevices = 2;
 String flexValueLeft, flexValueRight, leftBattVoltage, rightBattVoltage;
 
 float  leftBattPercent, rightBattPercent;
+
+Adafruit_SSD1306 display(128, 64, &Wire, -1);
 
 // Extends the server callbacks class to define code that runs on certain events in the bluetooth server.
 class ServerCallbacks: public BLEServerCallbacks {
@@ -96,6 +103,7 @@ void setup() {
   Serial.begin(115200);
   Serial.println("BLE Server has started");
 
+
   // Initializes the server with the discoverable name of "Proto Server :3"
   BLEDevice::init("Proto Server :3");
   pServer = BLEDevice::createServer();
@@ -154,6 +162,12 @@ void setup() {
 
   pinMode(19, OUTPUT);
   pinMode(32, OUTPUT);
+
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3c);
+  display.setTextColor(WHITE);
+  
+  display.display();
+  display.clearDisplay();
 }
 
 void loop() {
@@ -167,6 +181,11 @@ void loop() {
   flexValueRight = pCharacteristicRight->getValue().c_str();
   analogWrite(19, map(flexValueRight.toInt(), 0, 7, 0, 255));
   analogWrite(32, map(flexValueLeft.toInt(), 0, 7, 0, 255));
+
+  display.setCursor(0, 0);
+  display.print("haiii");
+  display.display();
   
   delay(2000); // Keeps the server running
+  display.clearDisplay();
 }
