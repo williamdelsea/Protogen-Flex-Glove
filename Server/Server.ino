@@ -37,7 +37,7 @@ int deviceConnected = 0;
 
 int maxDevices = 2;
 
-String flexValueLeft, flexValueRight, leftBattVoltage, rightBattVoltage;
+String flexValueLeft, flexValueRight;
 
 float  leftBattPercent, rightBattPercent;
 
@@ -172,10 +172,13 @@ void setup() {
 
 void loop() {
 
-  leftBattVoltage = pCharacteristicLeftBatt->getValue().c_str();
+  /*leftBattVoltage = pCharacteristicLeftBatt->getValue().c_str();
   rightBattVoltage = pCharacteristicRightBatt->getValue().c_str();
   leftBattPercent = map(leftBattVoltage.toFloat(), 3.6, 4.2, 0, 100);
-  rightBattPercent = map(rightBattVoltage.toFloat(), 3.6, 4.2, 0, 100);
+  rightBattPercent = map(rightBattVoltage.toFloat(), 3.6, 4.2, 0, 100);*/
+  
+  leftBattPercent = getBatteryPercent(pCharacteristicLeftBatt);
+  rightBattPercent = getBatteryPercent(pCharacteristicRightBatt);
 
   flexValueLeft = pCharacteristicLeft->getValue().c_str();
   flexValueRight = pCharacteristicRight->getValue().c_str();
@@ -183,9 +186,23 @@ void loop() {
   analogWrite(32, map(flexValueLeft.toInt(), 0, 7, 0, 255));
 
   display.setCursor(0, 0);
-  display.print("haiii");
+  display.print("left value: ");
+  display.print(flexValueLeft.toInt());
+  display.print(" voltage: ");
+  display.println(leftBattPercent);
+
+  display.print("right value: ");
+  display.print(flexValueRight.toInt());
+  display.print(" voltage: ");
+  display.println(rightBattPercent);
+
   display.display();
   
   delay(2000); // Keeps the server running
   display.clearDisplay();
+}
+
+float getBatteryPercent(BLECharacteristic* c) {
+  String batteryPercent = c->getValue().c_str();
+  return map(batteryPercent.toFloat(), 3.6, 4.2, 0, 100);
 }
