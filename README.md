@@ -19,7 +19,7 @@ ESP32-WROOM and Arduino ESP32 nano will be officially supported. Other ESP32 bas
 
 For a lower profile board, the QTpy charger is not necessary, as the XIAO has [battery pad on the underside](https://wiki.seeedstudio.com/XIAO_ESP32C3_Getting_Started/#battery-usage). Instead a battery can be directly soldered to the pads with a switch between.
 
-Both flex gloves use the same script, but are able to differentiate if they are they are the left or right glove by a 10kΩ resistor on pin 8. When connected to ground, the client will be in left mode, and connected to power it will be in right mode.
+Both flex gloves use the same script, but are able to differentiate if they are they are the left or right glove by a 10kΩ resistor on pin 8. When connected to ground, the client will be in left mode, and connected to power it will be in right mode. The script only checks this value on startup, so the client mode cannot be changed during runtime.
 
 ## Pin Connection
 ### Xiao 
