@@ -11,6 +11,8 @@
 #define CHARACTERISTIC_LEFT_BATTERY  "1a703249-0446-448b-98d4-980a1d10da21"
 #define CHARACTERISTIC_RIGHT_BATTERY "2de2e09d-5ccd-4341-a148-eb7422401c98"
 
+#define CONFIG_ADC_ONESHOT_FORCE_USE_ADC2_ON_C3;
+
 // https://www.uuidgenerator.net/
 
 
@@ -225,7 +227,7 @@ void loop() {
 float readBatt() {
   uint32_t Vbatt = 0;
   for(int i = 0; i < 16; i++) {
-    Vbatt = Vbatt + analogReadMilliVolts(A3); // ADC with correction   
+    Vbatt = Vbatt + analogReadMilliVolts(GPIO_NUM_5); // ADC with correction   
   }
   float Vbattf = 2 * Vbatt / 16 / 1000.0;     // attenuation ratio 1/2, mV --> V
   return Vbattf;
