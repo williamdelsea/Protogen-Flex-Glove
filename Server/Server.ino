@@ -186,15 +186,19 @@ void loop() {
   analogWrite(32, map(flexValueLeft.toInt(), 0, 7, 0, 255));
 
   display.setCursor(0, 0);
-  display.print("left value: ");
   display.print(flexValueLeft.toInt());
-  display.print(" voltage: ");
-  display.println(leftBattPercent);
+  display.print("  ");
+  display.print(pCharacteristicLeftBatt->getValue().c_str());
+  display.print("v ");
+  display.print(leftBattPercent);
+  display.println("%");
 
-  display.print("right value: ");
   display.print(flexValueRight.toInt());
-  display.print(" voltage: ");
-  display.println(rightBattPercent);
+  display.print("  ");
+  display.print(pCharacteristicRightBatt->getValue().c_str());
+  display.print("v ");
+  display.print(rightBattPercent);
+  display.print("%");
 
   display.display();
   
@@ -204,5 +208,10 @@ void loop() {
 
 float getBatteryPercent(BLECharacteristic* c) {
   String batteryPercent = c->getValue().c_str();
-  return map(batteryPercent.toFloat(), 3.6, 4.2, 0, 100);
+  return mapfloat(batteryPercent.toFloat(), 3.6, 4.2, 0.0, 100.0);
+}
+
+float mapfloat(float x, float in_min, float in_max, float out_min, float out_max)
+{
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }

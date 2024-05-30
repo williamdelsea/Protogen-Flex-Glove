@@ -180,16 +180,12 @@ void setup() {
 void loop() {
 
   // reading A0 for voltage
-  Vbatt = 0;
-  for(int i = 0; i < 16; i++) {
-    Vbatt = Vbatt + analogReadMilliVolts(A0); // ADC with correction   
-  }
-  batteryVolt = 2 * Vbatt / 16 / 1000.0;
+  batteryVolt = readBatt();
 
   // reading flex sensors 
-  (analogRead(A1) >= 2047) ? thumb = true : thumb = false;
-  (analogRead(A2) >= 2047) ? pointer = true : pointer = false;
-  (analogRead(A3) >= 2047) ? middle = true : middle = false;
+  (analogRead(A0) >= 2047) ? thumb = true : thumb = false;
+  (analogRead(A1) >= 2047) ? pointer = true : pointer = false;
+  (analogRead(A2) >= 2047) ? middle = true : middle = false;
 
   // If the flag "doConnect" is true then we have scanned for and found the desired
   // BLE Server with which we wish to connect.  Now we connect to it.  Once we are 
@@ -225,3 +221,12 @@ void loop() {
   
   delay(1000); // Delay a second between loops.
 } // End of loop
+
+float readBatt() {
+  uint32_t Vbatt = 0;
+  for(int i = 0; i < 16; i++) {
+    Vbatt = Vbatt + analogReadMilliVolts(A3); // ADC with correction   
+  }
+  float Vbattf = 2 * Vbatt / 16 / 1000.0;     // attenuation ratio 1/2, mV --> V
+  return Vbattf;
+}
