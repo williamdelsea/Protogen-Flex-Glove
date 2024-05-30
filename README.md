@@ -12,7 +12,6 @@ ESP32-WROOM and Arduino ESP32 nano will be officially supported. Other ESP32 bas
 - [ESP32-WROOM](https://www.amazon.com/s?k=esp32+Wroom+32&i=electronics&crid=2EIN54VSP3B0&sprefix=esp32+wroom+%2Celectronics%2C166&ref=nb_sb_noss_2) or [Arduino ESP32 nano](https://store.arduino.cc/products/nano-esp32), 1pc 
 - [2.2 inch flex sensor](https://www.adafruit.com/product/1070), 6pc 
 - [Lilon/Lipoly QTpy charger BFF](https://www.adafruit.com/product/5397), 2pc (optional)
-- [Lilon/Lipoly fuel gauge](https://www.adafruit.com/product/4712), 2pc (optional)
 - [Swich for battery](https://www.sparkfun.com/products/9609), 2pc (if not using QTpy charger)
 - [Lithuim ion polymer battery](https://www.adafruit.com/product/1578), 2pc
 - [Mini PCB prototype board](https://www.amazon.com/ElectroCookie-Solderable-Breadboard-Electronics-Gold-Plated/dp/B081MSKJJX), 2pc
@@ -25,11 +24,10 @@ Both flex gloves use the same script, but are able to differentiate if they are 
 
 ## Pin Connection
 ### Xiao 
-- A0 -> thumb sensor
-- A1 -> index sensor
-- A2 -> middle senor
-- D4 -> SDA Lilon/Lipoly fuel gauge (optional)
-- D5 -> SCL Lilon/Lipoly fuel guage (optional)
+- A0 -> [battery pads](https://wiki.seeedstudio.com/XIAO_ESP32C3_Getting_Started/#check-the-battery-voltage) (any value of resistance can be used, as long as they're the same)
+- A1 -> thumb sensor
+- A2 -> index sensor
+- A4 -> middle senor
 - D8 -> 10kΩ -> power (right) / ground (left)
   
   all flex sensors use a pullup resistor between their respective input pins and power
