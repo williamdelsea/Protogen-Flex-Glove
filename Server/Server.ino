@@ -190,14 +190,14 @@ void loop() {
   display.print("  ");
   display.print(pCharacteristicLeftBatt->getValue().c_str());
   display.print("v ");
-  display.print(leftBattPercent);
+  display.print(max(0, leftBattPercent));
   display.println("%");
 
   display.print(flexValueRight.toInt());
   display.print("  ");
   display.print(pCharacteristicRightBatt->getValue().c_str());
   display.print("v ");
-  display.print(rightBattPercent);
+  display.print(max(0, rightBattPercent));
   display.print("%");
 
   display.display();

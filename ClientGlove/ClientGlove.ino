@@ -1,5 +1,5 @@
 #include "BLEDevice.h"
-
+#include <driver/adc.h>
 
 // The remote service we wish to connect to.
 #define SERVICE_UUID "9d537c81-4b1f-406c-b12f-a9aa49af6333"
@@ -11,7 +11,7 @@
 #define CHARACTERISTIC_LEFT_BATTERY  "1a703249-0446-448b-98d4-980a1d10da21"
 #define CHARACTERISTIC_RIGHT_BATTERY "2de2e09d-5ccd-4341-a148-eb7422401c98"
 
-#define CONFIG_ADC_ONESHOT_FORCE_USE_ADC2_ON_C3;
+#define ADC_ONESHOT_FORCE_USE_ADC2_ON_C3
 
 // https://www.uuidgenerator.net/
 
@@ -46,6 +46,7 @@ uint8_t flexData;
 float batteryVolt;
 uint32_t Vbatt;
 
+char voltArray[3];
 
 // Callbacks for events that occur to the BLE Client
 class MyClientCallback : public BLEClientCallbacks {
@@ -149,7 +150,7 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
 void setup() {
   // setting up pins to use for flex sensor, A0 for checking battery voltage, A1-3 for flex sensors
   // D8 used for determining left of right client, connect 10kΩ to ground for left, power for right
-  pinMode(A0, INPUT);
+  pinMode(A0, INPUT); // dont need this maybe??
 
   pinMode(A1, INPUT);
   pinMode(A2, INPUT);
@@ -184,10 +185,12 @@ void loop() {
   // reading A0 for voltage
   batteryVolt = readBatt();
 
+  dtostrf(batteryVolt, 3, 2, voltArray);
+
   // reading flex sensors 
-  (analogRead(A0) >= 2047) ? thumb = true : thumb = false;
-  (analogRead(A1) >= 2047) ? pointer = true : pointer = false;
-  (analogRead(A2) >= 2047) ? middle = true : middle = false;
+  (digitalRead(A1) == HIGH) ? thumb = true : thumb = false;
+  (digitalRead(A2) == HIGH) ? pointer = true : pointer = false;
+  (digitalRead(A3) == HIGH) ? middle = true : middle = false;
 
   // If the flag "doConnect" is true then we have scanned for and found the desired
   // BLE Server with which we wish to connect.  Now we connect to it.  Once we are 
@@ -211,10 +214,10 @@ void loop() {
     
     if (right) {
       pRemoteCharRight->writeValue(flexData, false);
-      pRemoteCharRightBatt->writeValue(batteryVolt, false);
+      pRemoteCharRightBatt->writeValue(voltArray, false);
     } else {
       pRemoteCharLeft->writeValue(flexData, false);
-      pRemoteCharLeftBatt->writeValue(batteryVolt, false);
+      pRemoteCharLeftBatt->writeValue(voltArray, false);
     }
 
   } else if (doScan) {
@@ -227,8 +230,9 @@ void loop() {
 float readBatt() {
   uint32_t Vbatt = 0;
   for(int i = 0; i < 16; i++) {
-    Vbatt = Vbatt + analogReadMilliVolts(GPIO_NUM_5); // ADC with correction   
+    Vbatt = Vbatt + analogReadMilliVolts(A0); // ADC with correction   
   }
   float Vbattf = 2 * Vbatt / 16 / 1000.0;     // attenuation ratio 1/2, mV --> V
+  Serial.println(Vbattf);
   return Vbattf;
 }
