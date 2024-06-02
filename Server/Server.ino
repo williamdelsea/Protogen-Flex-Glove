@@ -1,7 +1,11 @@
+#include <Adafruit_GFX.h>
+#include <Adafruit_GrayOLED.h>
+#include <Adafruit_SPITFT.h>
+#include <Adafruit_SPITFT_Macros.h>
+#include <gfxfont.h>
+
 #include <Adafruit_SSD1306.h>
 #include <splash.h>
-
-
 
 #include <BLEDevice.h>
 #include <BLEUtils.h>
@@ -39,9 +43,22 @@ int maxDevices = 2;
 
 String flexValueLeft, flexValueRight;
 
-float  leftBattPercent, rightBattPercent;
+float leftBattPercent, rightBattPercent;
+
+bool leftConnected, rightConnected;
 
 Adafruit_SSD1306 display(128, 64, &Wire, -1);
+
+// 'paw_connected', 16x16px
+const unsigned char b_paw_connected [] PROGMEM = {
+	0x0c, 0x30, 0x1e, 0x78, 0x1e, 0x78, 0x0e, 0x70, 0x60, 0x06, 0xf0, 0x0f, 0xf0, 0x0f, 0x73, 0xce, 
+	0x07, 0xe0, 0x0f, 0xf0, 0x1f, 0xf8, 0x3f, 0xfc, 0x3f, 0xfc, 0x3f, 0xfc, 0x3f, 0xfc, 0x1c, 0x38
+};
+// 'paw_disconnected', 16x16px
+const unsigned char b_paw_disconnected [] PROGMEM = {
+	0x0c, 0x30, 0x12, 0x48, 0x12, 0x48, 0x0e, 0x70, 0x60, 0x06, 0x90, 0x09, 0x90, 0x09, 0x73, 0xce, 
+	0x04, 0x20, 0x08, 0x10, 0x10, 0x08, 0x20, 0x04, 0x20, 0x04, 0x20, 0x04, 0x23, 0xc4, 0x1c, 0x38
+};
 
 // Extends the server callbacks class to define code that runs on certain events in the bluetooth server.
 class ServerCallbacks: public BLEServerCallbacks {
@@ -63,7 +80,8 @@ class ServerCallbacks: public BLEServerCallbacks {
     {
         deviceConnected--;
         pServer->startAdvertising(); // restart advertising
-
+        leftConnected = false;
+        rightConnected = false;
         // Rebug messages
         Serial.print("Device disconnected. Now there are ");
         Serial.print(deviceConnected);
@@ -80,7 +98,13 @@ class CharacteristicChangeCallbacks: public BLECharacteristicCallbacks {
       // Get the key value pair, the key is one of the characteristic UUIDs defined earlier
       std::string key = pCharacteristic->getUUID().toString();
       std::string value = pCharacteristic->getValue();
+      String keyString = key.c_str();
 
+      if (keyString.equals("ac61fa72-e2de-42fb-9605-d0c7549b1c39") || keyString.equals("1a703249-0446-448b-98d4-980a1d10da21")) { // left UUID
+        leftConnected = true;
+      } else if (keyString.equals("b3f4eb92-9ceb-4317-90ed-373a36164d2b") || keyString.equals("2de2e09d-5ccd-4341-a148-eb7422401c98")) { // right UUID
+        rightConnected = true;
+      }
       // Debug messages
       if (value.length() > 0) {
         Serial.println("*********");
@@ -95,6 +119,12 @@ class CharacteristicChangeCallbacks: public BLECharacteristicCallbacks {
 
         Serial.println("*********");
       }
+    }
+
+    void onNotify(BLECharacteristic* pCharacteristic) {
+      std::string key = pCharacteristic->getUUID().toString();
+      
+      display.display();
     }
 };
 
@@ -171,11 +201,6 @@ void setup() {
 }
 
 void loop() {
-
-  /*leftBattVoltage = pCharacteristicLeftBatt->getValue().c_str();
-  rightBattVoltage = pCharacteristicRightBatt->getValue().c_str();
-  leftBattPercent = map(leftBattVoltage.toFloat(), 3.6, 4.2, 0, 100);
-  rightBattPercent = map(rightBattVoltage.toFloat(), 3.6, 4.2, 0, 100);*/
   
   leftBattPercent = getBatteryPercent(pCharacteristicLeftBatt);
   rightBattPercent = getBatteryPercent(pCharacteristicRightBatt);
@@ -185,24 +210,8 @@ void loop() {
   analogWrite(19, map(flexValueRight.toInt(), 0, 7, 0, 255));
   analogWrite(32, map(flexValueLeft.toInt(), 0, 7, 0, 255));
 
-  display.setCursor(0, 0);
-  display.print(flexValueLeft.toInt());
-  display.print("  ");
-  display.print(pCharacteristicLeftBatt->getValue().c_str());
-  display.print("v ");
-  display.print(max(0, leftBattPercent));
-  display.println("%");
-
-  display.print(flexValueRight.toInt());
-  display.print("  ");
-  display.print(pCharacteristicRightBatt->getValue().c_str());
-  display.print("v ");
-  display.print(max(0, rightBattPercent));
-  display.print("%");
-
-  display.display();
-  
-  delay(2000); // Keeps the server running
+  displayInfo();
+  delay(500); // Keeps the server running
   display.clearDisplay();
 }
 
@@ -214,4 +223,25 @@ float getBatteryPercent(BLECharacteristic* c) {
 float mapfloat(float x, float in_min, float in_max, float out_min, float out_max)
 {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+void displayInfo() {
+  //display.drawBitmap();
+  (rightConnected) ? display.drawBitmap(111, 0, b_paw_connected, 16, 16, WHITE) : display.drawBitmap(111, 0, b_paw_disconnected, 16, 16, WHITE);
+  (leftConnected) ? display.drawBitmap(91, 0, b_paw_connected, 16, 16, WHITE) : display.drawBitmap(91, 0, b_paw_disconnected, 16, 16, WHITE);
+  display.setCursor(91, 20);
+  display.print(flexValueLeft.toInt());
+  display.setCursor(91, 28);
+  display.print(max(0, (int)leftBattPercent));
+  display.println("%");
+
+  display.setCursor(111, 20);
+  display.print(flexValueRight.toInt());
+  display.setCursor(111, 28);
+  display.print(max(0, (int)rightBattPercent));
+  display.print("%");
+
+  display.setCursor(0, 0);
+  display.print(pCharacteristic)
+  display.display();
 }
