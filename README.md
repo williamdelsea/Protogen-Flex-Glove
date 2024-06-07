@@ -1,15 +1,16 @@
 # Protogen Flex Glove
 The protogen flex glove is a peripheral for a protogen LED head that uses finger movement to control face gesture.  
-The flex gloves use ESP32 based boards and Bluetooth Low Energy for communication.  
+The flex gloves use ESP32 based boards and Bluetooth Low Energy (BLE) for communication.  
 An ESP32 is used as the bluetooth server and main microcontroller for the protogen head, and two Seed Studio XIAO ESP32C3 for the gloves.  
-ESP32-WROOM and Arduino ESP32 nano will be officially supported. Other ESP32 based boards should still work, but will need more tweaking with the code.  
+ESP-WROOM32 and Arduino ESP32 nano will be officially supported. Other ESP32 based boards should still work, but will need more tweaking with the code. 
+
 
 
 
 ## Components used:
 *this list does not include the protogen head, just the ESP32 controlling it*
 - [XIAO EPS32C2](https://www.seeedstudio.com/Seeed-XIAO-ESP32C3-p-5431.html), 2pc 
-- [ESP32-WROOM](https://www.amazon.com/s?k=esp32+Wroom+32&i=electronics&crid=2EIN54VSP3B0&sprefix=esp32+wroom+%2Celectronics%2C166&ref=nb_sb_noss_2) or [Arduino ESP32 nano](https://store.arduino.cc/products/nano-esp32), 1pc 
+- [ESP-WROOM32](https://www.amazon.com/s?k=esp32+Wroom+32&i=electronics&crid=2EIN54VSP3B0&sprefix=esp32+wroom+%2Celectronics%2C166&ref=nb_sb_noss_2) or [Arduino ESP32 nano](https://store.arduino.cc/products/nano-esp32), 1pc 
 - [2.2 inch flex sensor](https://www.adafruit.com/product/1070), 6pc 
 - [Swich for battery](https://www.sparkfun.com/products/9609), 2pc
 - [Lithuim ion polymer battery](https://www.adafruit.com/product/1578), 2pc
@@ -20,7 +21,7 @@ Total Cost: ~$110
 (flex sensors are wildly expensive)
 
 
-Both flex gloves use the same script, but are able to differentiate if they are they are the left or right glove by a 10kΩ resistor on pin 8. When connected to ground, the client will be in left mode, and connected to power it will be in right mode. The script only checks this value on startup, so the client mode cannot be changed during runtime.
+Both flex gloves use the same script, they are able to select between left or right mode by a 10kΩ resistor on pin 8. When connected to ground, the client will be in left mode, and connected to power it will be in right mode. The script only checks this value on startup, so the client mode cannot be changed during runtime.
 
 ## Pin Connection
 ### Xiao 
@@ -28,10 +29,10 @@ Both flex gloves use the same script, but are able to differentiate if they are 
 - A1 -> index sensor
 - A2 -> middle sensor
 - D8 -> 10kΩ -> power (right) / ground (left)
-- Battery pads -> slide switch -> battery
+- [Battery pads](https://wiki.seeedstudio.com/XIAO_ESP32C3_Getting_Started/#battery-usage) -> slide switch -> battery
   
-  All flex sensors use a pullup resistor between their respective input pins and power
+All flex sensors use a pullup resistor between their respective input pins and power
   
 
-  ## Addressing Clients
-  The addresses are used to determine which client connects and disconnects. Changing the address of the Xiao is kinda weird, so instead we reccomend using its already initialized address. To find the address, simply connect the client to the server, and the address will be printed out to the serial monitor, copy the series of hex numbers and enter them into either leftADDR[] or rightADDR[].
+## Addressing Clients
+The addresses are used to determine which client connects and disconnects. Changing the address of the Xiao is kinda weird, so instead we reccomend using its already initialized address. To find the address, simply connect the client to the server, and the address will be printed out to the serial monitor, copy the series of hex numbers and enter them into either leftADDR[] or rightADDR[].
