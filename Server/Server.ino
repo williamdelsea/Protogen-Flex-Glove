@@ -20,10 +20,12 @@
 #define CHARACTERISTIC_LEFT_UUID  "ac61fa72-e2de-42fb-9605-d0c7549b1c39"
 #define CHARACTERISTIC_RIGHT_UUID "b3f4eb92-9ceb-4317-90ed-373a36164d2b"
 
-#define CHARACTERISTIC_LEFT_BATTERY  "1a703249-0446-448b-98d4-980a1d10da21"
-#define CHARACTERISITC_RIGHT_BATTERY "2de2e09d-5ccd-4341-a148-eb7422401c98"
-
 // https://www.uuidgenerator.net/
+
+uint8_t leftADDR[] = {0x64, 0xE8, 0x33, 0x00, 0xFC, 0x3E};
+uint8_t rightADDR[] = {0xD4, 0xF9, 0x8D, 0x04, 0x1D, 0xB6};
+
+// https://dnschecker.org/mac-address-generator.php
 
 // The bluetooth low energy server and its default service.
 // See https://learn.adafruit.com/introduction-to-bluetooth-low-energy/gatt#services-and-characteristics-640989
@@ -33,8 +35,6 @@ BLEService *pService;
 // Characteristic definitions for the left and right state values.
 BLECharacteristic *pCharacteristicLeft;
 BLECharacteristic *pCharacteristicRight;
-BLECharacteristic *pCharacteristicLeftBatt;
-BLECharacteristic *pCharacteristicRightBatt;
 
 // Number of devices currently connected, used for logging.
 int deviceConnected = 0;
@@ -63,9 +63,18 @@ const unsigned char b_paw_disconnected [] PROGMEM = {
 // Extends the server callbacks class to define code that runs on certain events in the bluetooth server.
 class ServerCallbacks: public BLEServerCallbacks {
     // Runs whenever a new device connects to the server.
-    void onConnect(BLEServer* pServer) 
+    void onConnect(BLEServer* pServer,  esp_ble_gatts_cb_param_t *param) 
     {
         deviceConnected++;
+        Serial.print("Serial address: ");
+        Serial.println(BLEAddress(param->connect.remote_bda).toString().c_str());
+        if (BLEAddress(param->connect.remote_bda).equals(leftADDR)) {
+          Serial.println("left");
+          leftConnected = true;
+        } else if (BLEAddress(param->connect.remote_bda).equals(rightADDR)) {
+          Serial.println("right");
+          rightConnected = true;
+        }
         // By default the server stops advertising when a device connects, the below line makes it continue advertising and hence allow multiple connections.
         // if there is less than the max amount of devices connecting, the serve will continue to advertise
         if (deviceConnected < maxDevices) BLEDevice::startAdvertising();
@@ -76,12 +85,23 @@ class ServerCallbacks: public BLEServerCallbacks {
         Serial.println(" devices connected.");
     };
 
-    void onDisconnect(BLEServer* pServer) 
+    void onDisconnect(BLEServer* pServer,  esp_ble_gatts_cb_param_t *param) 
     {
         deviceConnected--;
+        Serial.print("Serial address: ");
+        Serial.println(BLEAddress(param->connect.remote_bda).toString().c_str());
+
+        if (BLEAddress(param->connect.remote_bda).equals(leftADDR)) {
+          Serial.println("left");
+          pCharacteristicLeft->setValue("0");
+          leftConnected = false;
+        } else if (BLEAddress(param->connect.remote_bda).equals(rightADDR)) {
+          Serial.println("right");
+          pCharacteristicRight->setValue("0");
+          rightConnected = false;
+        }
+
         pServer->startAdvertising(); // restart advertising
-        leftConnected = false;
-        rightConnected = false;
         // Rebug messages
         Serial.print("Device disconnected. Now there are ");
         Serial.print(deviceConnected);
@@ -133,7 +153,6 @@ void setup() {
   Serial.begin(115200);
   Serial.println("BLE Server has started");
 
-
   // Initializes the server with the discoverable name of "Proto Server :3"
   BLEDevice::init("Proto Server :3");
   pServer = BLEDevice::createServer();
@@ -155,29 +174,15 @@ void setup() {
     BLECharacteristic::PROPERTY_READ |
     BLECharacteristic::PROPERTY_WRITE
   );
-  pCharacteristicLeftBatt = pService->createCharacteristic(
-    CHARACTERISTIC_LEFT_BATTERY,
-    BLECharacteristic::PROPERTY_READ |
-    BLECharacteristic::PROPERTY_WRITE
-  );
-  pCharacteristicRightBatt = pService->createCharacteristic(
-    CHARACTERISITC_RIGHT_BATTERY,
-    BLECharacteristic::PROPERTY_READ |
-    BLECharacteristic::PROPERTY_WRITE
-  );
 
   // Tells both characteristics to use the same callback methods we defined above to listen for changes
   CharacteristicChangeCallbacks *callbacks = new CharacteristicChangeCallbacks();
   pCharacteristicLeft->setCallbacks(callbacks);
   pCharacteristicRight->setCallbacks(callbacks);
-  pCharacteristicLeftBatt->setCallbacks(callbacks);
-  pCharacteristicRightBatt->setCallbacks(callbacks);
 
   // Sets the default value for each characteristic
   pCharacteristicLeft->setValue("0");
   pCharacteristicRight->setValue("0");
-  pCharacteristicLeftBatt->setValue("0");
-  pCharacteristicRightBatt->setValue("0");
 
   // Starts the service, however no client can connect until the device starts advertising
   pService->start();
@@ -201,28 +206,13 @@ void setup() {
 }
 
 void loop() {
-  
-  leftBattPercent = getBatteryPercent(pCharacteristicLeftBatt);
-  rightBattPercent = getBatteryPercent(pCharacteristicRightBatt);
 
   flexValueLeft = pCharacteristicLeft->getValue().c_str();
   flexValueRight = pCharacteristicRight->getValue().c_str();
-  analogWrite(19, map(flexValueRight.toInt(), 0, 7, 0, 255));
-  analogWrite(32, map(flexValueLeft.toInt(), 0, 7, 0, 255));
 
   displayInfo();
   delay(500); // Keeps the server running
   display.clearDisplay();
-}
-
-float getBatteryPercent(BLECharacteristic* c) {
-  String batteryPercent = c->getValue().c_str();
-  return mapfloat(batteryPercent.toFloat(), 3.6, 4.2, 0.0, 100.0);
-}
-
-float mapfloat(float x, float in_min, float in_max, float out_min, float out_max)
-{
-  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
 void displayInfo() {
@@ -231,17 +221,11 @@ void displayInfo() {
   (leftConnected) ? display.drawBitmap(91, 0, b_paw_connected, 16, 16, WHITE) : display.drawBitmap(91, 0, b_paw_disconnected, 16, 16, WHITE);
   display.setCursor(91, 20);
   display.print(flexValueLeft.toInt());
-  display.setCursor(91, 28);
-  display.print(max(0, (int)leftBattPercent));
-  display.println("%");
 
   display.setCursor(111, 20);
   display.print(flexValueRight.toInt());
-  display.setCursor(111, 28);
-  display.print(max(0, (int)rightBattPercent));
-  display.print("%");
 
   display.setCursor(0, 0);
-  display.print(pCharacteristic)
+  //display.print(pCharacteristic)
   display.display();
 }
