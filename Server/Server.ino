@@ -25,7 +25,6 @@
 uint8_t leftADDR[] = {0x64, 0xE8, 0x33, 0x00, 0xFC, 0x3E};
 uint8_t rightADDR[] = {0xD4, 0xF9, 0x8D, 0x04, 0x1D, 0xB6};
 
-// https://dnschecker.org/mac-address-generator.php
 
 // The bluetooth low energy server and its default service.
 // See https://learn.adafruit.com/introduction-to-bluetooth-low-energy/gatt#services-and-characteristics-640989
@@ -42,8 +41,6 @@ int deviceConnected = 0;
 int maxDevices = 2;
 
 String flexValueLeft, flexValueRight;
-
-float leftBattPercent, rightBattPercent;
 
 bool leftConnected, rightConnected;
 
@@ -91,6 +88,7 @@ class ServerCallbacks: public BLEServerCallbacks {
         Serial.print("Serial address: ");
         Serial.println(BLEAddress(param->connect.remote_bda).toString().c_str());
 
+        // it takes a couple seconds for the server to register that a device has disconnected 
         if (BLEAddress(param->connect.remote_bda).equals(leftADDR)) {
           Serial.println("left");
           pCharacteristicLeft->setValue("0");
@@ -120,11 +118,6 @@ class CharacteristicChangeCallbacks: public BLECharacteristicCallbacks {
       std::string value = pCharacteristic->getValue();
       String keyString = key.c_str();
 
-      if (keyString.equals("ac61fa72-e2de-42fb-9605-d0c7549b1c39") || keyString.equals("1a703249-0446-448b-98d4-980a1d10da21")) { // left UUID
-        leftConnected = true;
-      } else if (keyString.equals("b3f4eb92-9ceb-4317-90ed-373a36164d2b") || keyString.equals("2de2e09d-5ccd-4341-a148-eb7422401c98")) { // right UUID
-        rightConnected = true;
-      }
       // Debug messages
       if (value.length() > 0) {
         Serial.println("*********");
@@ -139,12 +132,6 @@ class CharacteristicChangeCallbacks: public BLECharacteristicCallbacks {
 
         Serial.println("*********");
       }
-    }
-
-    void onNotify(BLECharacteristic* pCharacteristic) {
-      std::string key = pCharacteristic->getUUID().toString();
-      
-      display.display();
     }
 };
 
@@ -216,7 +203,6 @@ void loop() {
 }
 
 void displayInfo() {
-  //display.drawBitmap();
   (rightConnected) ? display.drawBitmap(111, 0, b_paw_connected, 16, 16, WHITE) : display.drawBitmap(111, 0, b_paw_disconnected, 16, 16, WHITE);
   (leftConnected) ? display.drawBitmap(91, 0, b_paw_connected, 16, 16, WHITE) : display.drawBitmap(91, 0, b_paw_disconnected, 16, 16, WHITE);
   display.setCursor(91, 20);
@@ -226,6 +212,5 @@ void displayInfo() {
   display.print(flexValueRight.toInt());
 
   display.setCursor(0, 0);
-  //display.print(pCharacteristic)
   display.display();
 }

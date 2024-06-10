@@ -8,13 +8,6 @@
 #define CHARACTERISTIC_LEFT_UUID  "ac61fa72-e2de-42fb-9605-d0c7549b1c39"
 #define CHARACTERISTIC_RIGHT_UUID "b3f4eb92-9ceb-4317-90ed-373a36164d2b"
 
-#define CHARACTERISTIC_LEFT_BATTERY  "1a703249-0446-448b-98d4-980a1d10da21"
-#define CHARACTERISTIC_RIGHT_BATTERY "2de2e09d-5ccd-4341-a148-eb7422401c98"
-
-#define ADC_ONESHOT_FORCE_USE_ADC2_ON_C3
-
-// https://www.uuidgenerator.net/
-
 // Reformat the strings as a BLEUUID
 static BLEUUID serviceUUID(SERVICE_UUID);
 static BLEUUID charLeftUUID(CHARACTERISTIC_LEFT_UUID);
@@ -187,9 +180,8 @@ void loop() {
   // with the current time since boot.
   if (connected) {
 
-    // dont know if this actually works
+    // converting flex inputs to binary then to decimal ASCII
     flexData = 48 + ((int) thumb << 0 | (int) pointer << 1 | (int) middle << 2);
-    //Serial.println(flexData);
     
     if (right) {
       pRemoteCharRight->writeValue(flexData, false);
