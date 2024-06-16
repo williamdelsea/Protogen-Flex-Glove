@@ -31,8 +31,8 @@ Both flex gloves use the same script, they are able to select between left or ri
 - D8 -> 10kΩ -> power (right) / ground (left)
 - [Battery pads](https://wiki.seeedstudio.com/XIAO_ESP32C3_Getting_Started/#battery-usage) -> slide switch -> battery
   
-All flex sensors use a pullup resistor between their respective input pins and power
+flex sensors use a pulldown resistor (between ground and input), we reccomend using 1kΩ . With a 1kΩ resistor, analog input ranges from 0 to ~150, default threashold is 75 but can be changed to any number.
   
 
 ## Addressing Clients
-The addresses are used to determine which client connects and disconnects. Changing the address of the Xiao is kinda weird, so instead we reccomend using its already initialized address. To find the address, simply connect the client to the server, and the address will be printed out to the serial monitor, copy the series of hex numbers and enter them into either leftADDR[] or rightADDR[].
+The addresses are used to check which client connects and disconnects. Changing the address of the Xiao is kinda weird, so instead we reccomend using its already initialized address. To find the address, simply connect the client to the server, and the address will be printed out to the serial monitor, copy the series of hex numbers and enter them into either leftADDR[] or rightADDR[].
