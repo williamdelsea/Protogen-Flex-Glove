@@ -198,7 +198,7 @@ void loop() {
   flexValueRight = pCharacteristicRight->getValue().c_str();
 
   displayInfo();
-  delay(200); // Keeps the server running
+  delay(100); // Keeps the server running
   display.clearDisplay();
 }
 
