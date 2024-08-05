@@ -200,5 +200,5 @@ void loop() {
     BLEDevice::getScan()->start(0);  // this is just example to start scan after disconnect, most likely there is better way to do it in arduino
   }
   
-  delay(1000); // Delay a second between loops.
+  delay(200); // Delay a second between loops.
 } // End of loop
