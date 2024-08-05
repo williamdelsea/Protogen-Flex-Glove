@@ -163,9 +163,14 @@ void setup() {
 void loop() {
 
   // reading flex sensors 
-  (analogRead(A0) <= 75) ? thumb = true : thumb = false;
+  if (right) {
+    (analogRead(A0) <= 75) ? middle = true : middle = false;
+    (analogRead(A2) <= 100) ? thumb = true : thumb = false;
+  } else {
+    (analogRead(A0) <= 100) ? thumb = true : thumb = false;
+    (analogRead(A2) <= 75) ? middle = true : middle = false;
+  }
   (analogRead(A1) <= 75) ? pointer = true : pointer = false;
-  (analogRead(A2) <= 75) ? middle = true : middle = false;
 
   // If the flag "doConnect" is true then we have scanned for and found the desired
   // BLE Server with which we wish to connect.  Now we connect to it.  Once we are 
