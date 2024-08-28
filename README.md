@@ -61,6 +61,8 @@ Paws in action
 
 ![IMG_6820 (2) (2)](https://github.com/user-attachments/assets/acb3166c-c815-4afc-8eeb-c204bfc12c73)
 
+(gonna get a better demo video sometime later)
+
 
 
 ## Development Galery
