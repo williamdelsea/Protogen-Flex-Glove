@@ -40,9 +40,7 @@ The XIAOs include a small antenna extension for bluetooth and wifi, but it is st
 
 Circuit diagram
 
-![](https://media.discordapp.net/attachments/1180984280147574855/1270069036285296754/IMG_1544.jpg?ex=66b25b76&is=66b109f6&hm=95c456c20aa842c839a9d7822e7a695fcbf3173489f457c5c049337d47cf818b&=&format=webp&width=419&height=559)
-
-still need to learn how to use KiCad
+![](.repo/images/schematic.png)
 
 
 ## Addressing Clients
@@ -52,7 +50,7 @@ The addresses are used to check which client connects and disconnects. Changing 
 
 First glove version.
 
-![](https://cdn.discordapp.com/attachments/1151993113754214401/1269846004677480520/IMG_1542.jpg?ex=66b23480&is=66b0e300&hm=975dac4371344691c6a02b66e879f628563df50f74b26eb8cb19baeaed0ac295&)
+![](.repo/images/glove.jpg)
 
 (Accidentally burned a hole in the glove while soldering)
 
@@ -69,13 +67,13 @@ Paws in action
 
 First prototype, using potentiometers to simulate flex sensors.
 
-![](https://cdn.discordapp.com/attachments/1180984280147574855/1270069037568626748/IMG_1434.jpg?ex=66b25b77&is=66b109f7&hm=da08503cc9870ebd3ab53f5df411bea7cf84bce69729aaf4297379a3b89392bc&)
+![](.repo/images/prototype1.jpg)
 
 
 Prototpe using flex sensors
 
-![](https://cdn.discordapp.com/attachments/1180984280147574855/1270069038608941079/IMG_1433.jpg?ex=66b25b77&is=66b109f7&hm=353c127204c164841500cf2dd86aa2f68c59f1975eb42288d170c9f61b6300af&)
+![](.repo/images/prototype2.jpg)
 
 Server with OLED display
 
-![](https://cdn.discordapp.com/attachments/1180984280147574855/1270069039225503774/IMG_1436.jpg?ex=66b25b77&is=66b109f7&hm=b58b79b777e78029dabce55381319ab25b15ec3464fac90f741b432bb1d6d366&)
+![](.repo/images/serverOn.jpg)
