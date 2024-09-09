@@ -189,6 +189,9 @@ void loop() {
   if (connected) {
 
     flexData = 48 + ((int) thumb << 0 | (int) pointer << 1 | (int) middle << 2);
+    Serial.print(thumb);
+    Serial.print(pointer);
+    Serial.println(middle);
     
     if (right) {
       pRemoteCharRight->writeValue(flexData, false);

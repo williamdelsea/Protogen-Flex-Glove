@@ -40,7 +40,7 @@ int deviceConnected = 0;
 
 int maxDevices = 2;
 
-String flexValueLeft, flexValueRight;
+int flexValueLeft, flexValueRight;
 
 bool leftConnected, rightConnected;
 
@@ -194,8 +194,8 @@ void setup() {
 
 void loop() {
 
-  flexValueLeft = pCharacteristicLeft->getValue().c_str();
-  flexValueRight = pCharacteristicRight->getValue().c_str();
+  flexValueLeft = (int)pCharacteristicLeft->getValue().c_str();
+  flexValueRight = (int)pCharacteristicRight->getValue().c_str();
 
   displayInfo();
   delay(100); // Keeps the server running
@@ -206,10 +206,10 @@ void displayInfo() {
   (rightConnected) ? display.drawBitmap(111, 0, b_paw_connected, 16, 16, WHITE) : display.drawBitmap(111, 0, b_paw_disconnected, 16, 16, WHITE);
   (leftConnected) ? display.drawBitmap(91, 0, b_paw_connected, 16, 16, WHITE) : display.drawBitmap(91, 0, b_paw_disconnected, 16, 16, WHITE);
   display.setCursor(91, 20);
-  display.print(flexValueLeft.toInt());
+  display.print(flexValueLeft);
 
   display.setCursor(111, 20);
-  display.print(flexValueRight.toInt());
+  display.print(flexValueRight);
 
   display.setCursor(0, 0);
   display.display();
