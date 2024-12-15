@@ -1,16 +1,9 @@
-#include <Adafruit_GFX.h>
-#include <Adafruit_GrayOLED.h>
-#include <Adafruit_SPITFT.h>
-#include <Adafruit_SPITFT_Macros.h>
-#include <gfxfont.h>
-
 #include <Adafruit_SSD1306.h>
 #include <splash.h>
 
 #include <BLEDevice.h>
 #include <BLEUtils.h>
 #include <BLEServer.h>
-
 
 // Service ID, should be the same as the client so the client knows which device to connect to.
 #define SERVICE_UUID              "9d537c81-4b1f-406c-b12f-a9aa49af6333"
@@ -23,7 +16,7 @@
 // https://www.uuidgenerator.net/
 
 uint8_t leftADDR[] = {0x64, 0xE8, 0x33, 0x00, 0xFC, 0x3E};
-uint8_t rightADDR[] = {0xD4, 0xF9, 0x8D, 0x04, 0x1D, 0xB6};
+uint8_t rightADDR[] = {0x64, 0xE8, 0x33, 0x84, 0x54, 0xBA};
 
 
 // The bluetooth low energy server and its default service.
@@ -35,12 +28,12 @@ BLEService *pService;
 BLECharacteristic *pCharacteristicLeft;
 BLECharacteristic *pCharacteristicRight;
 
-// Number of devices currently connected, used for logging.
-int deviceConnected = 0;
+// Number of devices currently connected, used for logging..
+int8_t maxDevices = 2;
+int8_t deviceConnected = 0;
 
-int maxDevices = 2;
-
-String flexValueLeft, flexValueRight;
+uint8_t defaultValue = 0;
+int8_t flexValueLeft, flexValueRight = defaultValue;
 
 bool leftConnected, rightConnected;
 
@@ -59,7 +52,7 @@ const unsigned char b_paw_disconnected [] PROGMEM = {
 
 // Extends the server callbacks class to define code that runs on certain events in the bluetooth server.
 class ServerCallbacks: public BLEServerCallbacks {
-    // Runs whenever a new device connects to the server.
+    // Runs whenever a new device connects to the server
     void onConnect(BLEServer* pServer,  esp_ble_gatts_cb_param_t *param) 
     {
         deviceConnected++;
@@ -91,11 +84,11 @@ class ServerCallbacks: public BLEServerCallbacks {
         // it takes a couple seconds for the server to register that a device has disconnected 
         if (BLEAddress(param->connect.remote_bda).equals(leftADDR)) {
           Serial.println("left");
-          pCharacteristicLeft->setValue("0");
+          pCharacteristicLeft->setValue(&defaultValue);
           leftConnected = false;
         } else if (BLEAddress(param->connect.remote_bda).equals(rightADDR)) {
           Serial.println("right");
-          pCharacteristicRight->setValue("0");
+          pCharacteristicRight->setValue(&defaultValue);
           rightConnected = false;
         }
 
@@ -114,20 +107,19 @@ class CharacteristicChangeCallbacks: public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic *pCharacteristic) {
 
       // Get the key value pair, the key is one of the characteristic UUIDs defined earlier
-      std::string key = pCharacteristic->getUUID().toString();
-      std::string value = pCharacteristic->getValue();
-      String keyString = key.c_str();
+      String key = pCharacteristic->getUUID().toString();
+      String value = pCharacteristic->getValue();
 
       // Debug messages
       if (value.length() > 0) {
         Serial.println("*********");
 
         Serial.print("Key:   ");
-        for (int i = 0; i < key.length(); i++) Serial.print(key[i]);
+        Serial.print(key);
         Serial.println();
 
         Serial.print("Value: ");
-        for (int i = 0; i < value.length(); i++) Serial.print(value[i]);
+        Serial.print(value.charAt(0), BIN);
         Serial.println();
 
         Serial.println("*********");
@@ -168,8 +160,8 @@ void setup() {
   pCharacteristicRight->setCallbacks(callbacks);
 
   // Sets the default value for each characteristic
-  pCharacteristicLeft->setValue("0");
-  pCharacteristicRight->setValue("0");
+  pCharacteristicLeft->setValue(&defaultValue, 1);
+  pCharacteristicRight->setValue(&defaultValue, 1);
 
   // Starts the service, however no client can connect until the device starts advertising
   pService->start();
@@ -182,9 +174,6 @@ void setup() {
   pAdvertising->setMinPreferred(0x12);
   BLEDevice::startAdvertising();
 
-  pinMode(19, OUTPUT);
-  pinMode(32, OUTPUT);
-
   display.begin(SSD1306_SWITCHCAPVCC, 0x3c);
   display.setTextColor(WHITE);
   
@@ -194,8 +183,8 @@ void setup() {
 
 void loop() {
 
-  flexValueLeft = pCharacteristicLeft->getValue().c_str();
-  flexValueRight = pCharacteristicRight->getValue().c_str();
+  flexValueLeft = pCharacteristicLeft->getValue().c_str()[0];
+  flexValueRight = pCharacteristicRight->getValue().c_str()[0];
 
   displayInfo();
   delay(500); // Keeps the server running
@@ -206,10 +195,10 @@ void displayInfo() {
   (rightConnected) ? display.drawBitmap(111, 0, b_paw_connected, 16, 16, WHITE) : display.drawBitmap(111, 0, b_paw_disconnected, 16, 16, WHITE);
   (leftConnected) ? display.drawBitmap(91, 0, b_paw_connected, 16, 16, WHITE) : display.drawBitmap(91, 0, b_paw_disconnected, 16, 16, WHITE);
   display.setCursor(91, 20);
-  display.print(flexValueLeft.toInt());
+  display.print(flexValueLeft, BIN);
 
   display.setCursor(111, 20);
-  display.print(flexValueRight.toInt());
+  display.print(flexValueRight, BIN);
 
   display.setCursor(0, 0);
   display.display();

@@ -164,6 +164,13 @@ void loop() {
   (analogRead(A1) <= pointerThresh) ? pointer = true : pointer = false;
   (analogRead(A2) <= middleThresh) ? middle = true : middle = false;
 
+  Serial.print("Thumb: ");
+  Serial.print(analogRead(A0));
+  Serial.print(" Pointer: ");
+  Serial.print(analogRead(A1));
+  Serial.print(" Middle: ");
+  Serial.println(analogRead(A2));
+
   // If the flag "doConnect" is true then we have scanned for and found the desired
   // BLE Server with which we wish to connect.  Now we connect to it.  Once we are 
   // connected we set the connected flag to be true.
@@ -181,7 +188,7 @@ void loop() {
   if (connected) {
 
     // converting flex inputs to binary then to decimal ASCII
-    flexData = 48 + ((int) thumb << 0 | (int) pointer << 1 | (int) middle << 2);
+    flexData = ((int) thumb << 0 | (int) pointer << 1 | (int) middle << 2);
     
     if (right) {
       pRemoteCharRight->writeValue(flexData, false);
