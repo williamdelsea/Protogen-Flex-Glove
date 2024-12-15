@@ -8,6 +8,13 @@
 #define CHARACTERISTIC_LEFT_UUID  "ac61fa72-e2de-42fb-9605-d0c7549b1c39"
 #define CHARACTERISTIC_RIGHT_UUID "b3f4eb92-9ceb-4317-90ed-373a36164d2b"
 
+#define CHARACTERISTIC_LEFT_BATTERY  "1a703249-0446-448b-98d4-980a1d10da21"
+#define CHARACTERISTIC_RIGHT_BATTERY "2de2e09d-5ccd-4341-a148-eb7422401c98"
+
+#define ADC_ONESHOT_FORCE_USE_ADC2_ON_C3
+
+// https://www.uuidgenerator.net/
+
 // Reformat the strings as a BLEUUID
 static BLEUUID serviceUUID(SERVICE_UUID);
 static BLEUUID charLeftUUID(CHARACTERISTIC_LEFT_UUID);
@@ -30,10 +37,6 @@ static BLERemoteCharacteristic* pRemoteCharRight;
 bool right = false;
 // index finger is named pointed because index is a keyword somewhere
 float thumb, pointer, middle;
-// individual flex thresholds
-float thumbThresh = 4094 / 2;
-float pointerThresh = 4094 / 2;
-float middleThresh = 4094 / 2;
 
 uint8_t flexData;
 
@@ -160,9 +163,14 @@ void setup() {
 void loop() {
 
   // reading flex sensors 
-  (analogRead(A0) <= thumbThresh) ? thumb = true : thumb = false;
-  (analogRead(A1) <= pointerThresh) ? pointer = true : pointer = false;
-  (analogRead(A2) <= middleThresh) ? middle = true : middle = false;
+  if (right) {
+    (analogRead(A0) <= 75) ? middle = true : middle = false;
+    (analogRead(A2) <= 100) ? thumb = true : thumb = false;
+  } else {
+    (analogRead(A0) <= 100) ? thumb = true : thumb = false;
+    (analogRead(A2) <= 75) ? middle = true : middle = false;
+  }
+  (analogRead(A1) <= 75) ? pointer = true : pointer = false;
 
   Serial.print("Thumb: ");
   Serial.print(analogRead(A0));
@@ -187,8 +195,15 @@ void loop() {
   // with the current time since boot.
   if (connected) {
 
+<<<<<<< HEAD
     // converting flex inputs to binary then to decimal ASCII
     flexData = ((int) thumb << 0 | (int) pointer << 1 | (int) middle << 2);
+=======
+    flexData = 48 + ((int) thumb << 0 | (int) pointer << 1 | (int) middle << 2);
+    Serial.print(thumb);
+    Serial.print(pointer);
+    Serial.println(middle);
+>>>>>>> f641ca65d2ae10a0182d0367eb6ecc85b8dbab87
     
     if (right) {
       pRemoteCharRight->writeValue(flexData, false);
@@ -200,5 +215,5 @@ void loop() {
     BLEDevice::getScan()->start(0);  // this is just example to start scan after disconnect, most likely there is better way to do it in arduino
   }
   
-  delay(1000); // Delay a second between loops.
+  delay(100); // Delay a second between loops.
 } // End of loop
