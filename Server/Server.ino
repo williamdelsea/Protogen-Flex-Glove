@@ -15,13 +15,14 @@
 
 // https://www.uuidgenerator.net/
 
-<<<<<<< HEAD
+// <<<<<<< HEAD
 uint8_t leftADDR[] = {0x64, 0xE8, 0x33, 0x00, 0xFC, 0x3E};
 uint8_t rightADDR[] = {0x64, 0xE8, 0x33, 0x84, 0x54, 0xBA};
-=======
-uint8_t rightADDR[] = {0x64, 0xE8, 0x33, 0x00, 0xFC, 0x3E};
-uint8_t leftADDR[] = {0xD4, 0xF9, 0x8D, 0x04, 0x1D, 0xB6};
->>>>>>> f641ca65d2ae10a0182d0367eb6ecc85b8dbab87
+// =======
+uint8_t ADDR[] = {0xe8, 0x33, 0x84, 0x54, 0xba, 0x08};
+// uint8_t rightADDR[] = {0x64, 0xE8, 0x33, 0x00, 0xFC, 0x3E};
+// uint8_t leftADDR[] = {0xD4, 0xF9, 0x8D, 0x04, 0x1D, 0xB6};
+//>>>>>>> f641ca65d2ae10a0182d0367eb6ecc85b8dbab87
 
 
 // The bluetooth low energy server and its default service.
@@ -37,14 +38,8 @@ BLECharacteristic *pCharacteristicRight;
 int8_t maxDevices = 2;
 int8_t deviceConnected = 0;
 
-<<<<<<< HEAD
 uint8_t defaultValue = 0;
 int8_t flexValueLeft, flexValueRight = defaultValue;
-=======
-int maxDevices = 2;
-
-int flexValueLeft, flexValueRight;
->>>>>>> f641ca65d2ae10a0182d0367eb6ecc85b8dbab87
 
 bool leftConnected, rightConnected;
 
@@ -69,10 +64,11 @@ class ServerCallbacks: public BLEServerCallbacks {
         deviceConnected++;
         Serial.print("Serial address: ");
         Serial.println(BLEAddress(param->connect.remote_bda).toString().c_str());
+        
         if (BLEAddress(param->connect.remote_bda).equals(leftADDR)) {
           Serial.println("left");
           leftConnected = true;
-        } else if (BLEAddress(param->connect.remote_bda).equals(rightADDR)) {
+        } else if (BLEAddress(param->connect.remote_bda).equals(ADDR)) {
           Serial.println("right");
           rightConnected = true;
         }
@@ -95,11 +91,11 @@ class ServerCallbacks: public BLEServerCallbacks {
         // it takes a couple seconds for the server to register that a device has disconnected 
         if (BLEAddress(param->connect.remote_bda).equals(leftADDR)) {
           Serial.println("left");
-          pCharacteristicLeft->setValue(&defaultValue);
+          pCharacteristicLeft->setValue(&defaultValue, 1);
           leftConnected = false;
-        } else if (BLEAddress(param->connect.remote_bda).equals(rightADDR)) {
+        } else if (BLEAddress(param->connect.remote_bda).equals(ADDR)) {
           Serial.println("right");
-          pCharacteristicRight->setValue(&defaultValue);
+          pCharacteristicRight->setValue(&defaultValue, 1);
           rightConnected = false;
         }
 
@@ -122,19 +118,19 @@ class CharacteristicChangeCallbacks: public BLECharacteristicCallbacks {
       String value = pCharacteristic->getValue();
 
       // Debug messages
-      if (value.length() > 0) {
-        Serial.println("*********");
+      // if (value.length() > 0) {
+      //   Serial.println("*********");
 
-        Serial.print("Key:   ");
-        Serial.print(key);
-        Serial.println();
+      //   Serial.print("Key:   ");
+      //   Serial.print(key);
+      //   Serial.println();
 
-        Serial.print("Value: ");
-        Serial.print(value.charAt(0), BIN);
-        Serial.println();
+      //   Serial.print("Value: ");
+      //   Serial.print(value.charAt(0), BIN);
+      //   Serial.println();
 
-        Serial.println("*********");
-      }
+      //   Serial.println("*********");
+      // }
     }
 };
 
@@ -194,13 +190,8 @@ void setup() {
 
 void loop() {
 
-<<<<<<< HEAD
   flexValueLeft = pCharacteristicLeft->getValue().c_str()[0];
   flexValueRight = pCharacteristicRight->getValue().c_str()[0];
-=======
-  flexValueLeft = (int)pCharacteristicLeft->getValue().c_str();
-  flexValueRight = (int)pCharacteristicRight->getValue().c_str();
->>>>>>> f641ca65d2ae10a0182d0367eb6ecc85b8dbab87
 
   displayInfo();
   delay(100); // Keeps the server running
@@ -211,17 +202,12 @@ void displayInfo() {
   (rightConnected) ? display.drawBitmap(111, 0, b_paw_connected, 16, 16, WHITE) : display.drawBitmap(111, 0, b_paw_disconnected, 16, 16, WHITE);
   (leftConnected) ? display.drawBitmap(91, 0, b_paw_connected, 16, 16, WHITE) : display.drawBitmap(91, 0, b_paw_disconnected, 16, 16, WHITE);
   display.setCursor(91, 20);
-<<<<<<< HEAD
-  display.print(flexValueLeft, BIN);
 
-  display.setCursor(111, 20);
-  display.print(flexValueRight, BIN);
-=======
   display.print(flexValueLeft);
 
   display.setCursor(111, 20);
   display.print(flexValueRight);
->>>>>>> f641ca65d2ae10a0182d0367eb6ecc85b8dbab87
+
 
   display.setCursor(0, 0);
   display.display();

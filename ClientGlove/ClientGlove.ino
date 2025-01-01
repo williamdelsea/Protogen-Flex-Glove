@@ -37,6 +37,7 @@ static BLERemoteCharacteristic* pRemoteCharRight;
 bool right = false;
 // index finger is named pointed because index is a keyword somewhere
 float thumb, pointer, middle;
+int thumbThresh, pointThresh, middleThresh = 0;
 
 uint8_t flexData;
 
@@ -156,6 +157,23 @@ void setup() {
   }
   Serial.print("Client is right? ");
   Serial.println(digitalRead(D8));
+
+  for (int i = 0; i <= 16; i++) {
+    
+    if (right) {
+      middleThresh += analogRead(A0);
+      thumbThresh += analogRead(A2);
+    } else {
+      middleThresh += analogRead(A2);
+      thumbThresh += analogRead(A0);
+    }
+
+    pointThresh += analogRead(A1);
+  }
+
+  middleThresh /= 24;
+  pointThresh /= 24;
+  thumbThresh /= 24;
 } // End of setup.
 
 
@@ -164,20 +182,25 @@ void loop() {
 
   // reading flex sensors 
   if (right) {
-    (analogRead(A0) <= 75) ? middle = true : middle = false;
-    (analogRead(A2) <= 100) ? thumb = true : thumb = false;
+    (analogRead(A0) <= middleThresh) ? middle = true : middle = false;
+    (analogRead(A2) <= thumbThresh) ? thumb = true : thumb = false;
   } else {
-    (analogRead(A0) <= 100) ? thumb = true : thumb = false;
-    (analogRead(A2) <= 75) ? middle = true : middle = false;
+    (analogRead(A0) <= thumbThresh) ? thumb = true : thumb = false;
+    (analogRead(A2) <= middleThresh) ? middle = true : middle = false;
   }
-  (analogRead(A1) <= 75) ? pointer = true : pointer = false;
+  (analogRead(A1) <= pointThresh) ? pointer = true : pointer = false;
 
-  Serial.print("Thumb: ");
   Serial.print(analogRead(A0));
-  Serial.print(" Pointer: ");
+  Serial.print("/");
+  Serial.print(middleThresh);
+  Serial.print("      ");
   Serial.print(analogRead(A1));
-  Serial.print(" Middle: ");
-  Serial.println(analogRead(A2));
+  Serial.print("/");
+  Serial.print(pointThresh);
+  Serial.print("      ");
+  Serial.print(analogRead(A2));
+  Serial.print("/");
+  Serial.println(thumbThresh);
 
   // If the flag "doConnect" is true then we have scanned for and found the desired
   // BLE Server with which we wish to connect.  Now we connect to it.  Once we are 
@@ -195,15 +218,20 @@ void loop() {
   // with the current time since boot.
   if (connected) {
 
-<<<<<<< HEAD
     // converting flex inputs to binary then to decimal ASCII
     flexData = ((int) thumb << 0 | (int) pointer << 1 | (int) middle << 2);
-=======
-    flexData = 48 + ((int) thumb << 0 | (int) pointer << 1 | (int) middle << 2);
+
     Serial.print(thumb);
+    Serial.print("/");
+    Serial.print(thumbThresh);
+    Serial.print("      ");
     Serial.print(pointer);
-    Serial.println(middle);
->>>>>>> f641ca65d2ae10a0182d0367eb6ecc85b8dbab87
+    Serial.print("/");
+    Serial.print(pointThresh);
+    Serial.print("      ");
+    Serial.print(middle);
+    Serial.print("/");
+    Serial.println(middleThresh);
     
     if (right) {
       pRemoteCharRight->writeValue(flexData, false);
